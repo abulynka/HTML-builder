@@ -18,8 +18,9 @@ async function copyDir(from, to) {
   await fsPromises.mkdir(to);
 
   for (const element of (await fsPromises.readdir(from, {withFileTypes: true}))) {
-    const pathFrom = from + '/' + element.name;
-    const pathTo = to + '/' + element.name;
+    const pathFrom = path.normalize(from + '/' + element.name);
+    const pathTo = path.normalize(to + '/' + element.name);
+
     if (element.isDirectory()) {
       await copyDir(
         pathFrom,
