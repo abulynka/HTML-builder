@@ -3,7 +3,6 @@ const path = require('path');
 const { EOL } = require('os');
 
 async function recreateDir(to) {
-  to = path.normalize(to);
   try {
     await fsPromises.stat(to);
     await fsPromises.rm(to, {recursive: true});
@@ -14,10 +13,6 @@ async function recreateDir(to) {
 }
 
 async function buildHtml(templatePath, htmlsFrom, htmlTo) {
-  templatePath = path.normalize(templatePath);
-  htmlsFrom = path.normalize(htmlsFrom);
-  htmlTo = path.normalize(htmlTo);
-
   let html = (await fsPromises.readFile(templatePath)).toString();
 
   for (const element of (await fsPromises.readdir(htmlsFrom, {withFileTypes: true}))) {
@@ -32,16 +27,13 @@ async function buildHtml(templatePath, htmlsFrom, htmlTo) {
 
     html = html.replaceAll(
       `{{${ path.parse(element.name).name }}}`,
-      await fsPromises.readFile(path.normalize(htmlsFrom + '/' + element.name)));
+      await fsPromises.readFile(path.join(htmlsFrom, element.name)));
   }
 
   await fsPromises.writeFile(htmlTo, html);
 }
 
 async function mergeCss(fromDirectory, toFile) {
-  fromDirectory = path.normalize(fromDirectory);
-  toFile = path.normalize(toFile);
-
   try {
     await fsPromises.stat(toFile);
     await fsPromises.rm(toFile);
@@ -50,7 +42,7 @@ async function mergeCss(fromDirectory, toFile) {
   }
 
   for (const element of (await fsPromises.readdir(fromDirectory, {withFileTypes: true}))) {
-    const from = path.normalize(fromDirectory + '/' + element.name);
+    const from = path.join(fromDirectory, element.name);
 
     if (element.isFile() === false) {
       continue;
@@ -69,9 +61,6 @@ async function mergeCss(fromDirectory, toFile) {
 }
 
 async function copyDir(from, to) {
-  from = path.normalize(from);
-  to = path.normalize(to);
-
   if (await fsPromises.access(from) === false) {
     throw new Error('File or directory ' + from + ' does not exist');
   }
@@ -85,8 +74,8 @@ async function copyDir(from, to) {
   await fsPromises.mkdir(to);
 
   for (const element of (await fsPromises.readdir(from, {withFileTypes: true}))) {
-    const pathFrom = path.normalize(from + '/' + element.name);
-    const pathTo = path.normalize(to + '/' + element.name);
+    const pathFrom = path.join(from, element.name);
+    const pathTo = path.join(to, element.name);
 
     if (element.isDirectory()) {
       await copyDir(
@@ -99,10 +88,17 @@ async function copyDir(from, to) {
 }
 
 async function process() {
-  await recreateDir(__dirname + '/project-dist');
-  await buildHtml(__dirname + '/template.html', __dirname + '/components', __dirname + '/project-dist/index.html');
-  await mergeCss(__dirname + '/styles', __dirname + '/project-dist/style.css');
-  await copyDir(__dirname + '/assets', __dirname + '/project-dist/assets');
+  await recreateDir(path.join(__dirname, 'project-dist'));
+  await buildHtml(
+    path.join(__dirname, 'template.html'),
+    path.join(__dirname, 'components'),
+    path.join(__dirname, 'project-dist', 'index.html'));
+  await mergeCss(
+    path.join(__dirname, 'styles'),
+    path.join(__dirname, 'project-dist', 'style.css'));
+  await copyDir(
+    path.join(__dirname, 'assets'),
+    path.join(__dirname, 'project-dist', 'assets'));
 }
 
 process().then();
