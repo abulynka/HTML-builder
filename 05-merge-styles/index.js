@@ -3,9 +3,6 @@ const path = require('path');
 const { EOL } = require('os');
 
 async function merge(fromDirectory, toFile) {
-  fromDirectory = path.normalize(fromDirectory);
-  toFile = path.normalize(toFile);
-
   try {
     await fsPromises.stat(toFile);
     await fsPromises.rm(toFile);
@@ -14,7 +11,7 @@ async function merge(fromDirectory, toFile) {
   }
 
   for (const element of (await fsPromises.readdir(fromDirectory, {withFileTypes: true}))) {
-    const from = path.normalize(fromDirectory + '/' + element.name);
+    const from = path.join(fromDirectory, element.name);
 
     if (element.isFile() === false) {
       continue;
@@ -32,4 +29,4 @@ async function merge(fromDirectory, toFile) {
   }
 }
 
-merge(__dirname + '/styles', __dirname + '/project-dist/bundle.css').then();
+merge(path.join(__dirname, 'styles'), path.join(__dirname, 'project-dist', 'bundle.css')).then();
