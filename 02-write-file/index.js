@@ -3,7 +3,7 @@ const path = require('path');
 const readline = require('readline');
 const { EOL } = require('os');
 
-const out = fs.createWriteStream(path.normalize(__dirname + '/test.txt'));
+const out = fs.createWriteStream(path.join(__dirname, 'test.txt'));
 
 const exit = function() {
   out.close();
