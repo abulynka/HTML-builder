@@ -1,14 +1,12 @@
-const fsPromises = require('fs/promises');
+const fs = require('fs');
 const path = require('path');
 const { EOL } = require('os');
 
 async function readDir(scanPath) {
-  scanPath = path.normalize(scanPath);
-
-  for (const element of (await fsPromises.readdir(scanPath, {withFileTypes: true}))) {
+  for (const element of (await fs.promises.readdir(scanPath, {withFileTypes: true}))) {
     if (element.isFile()) {
-      const handler = await fsPromises.open(path.normalize(scanPath + '/' + element.name), 'r');
-      console.log(path.parse(element.name));
+      const handler = await fs.promises.open(path.join(scanPath, element.name), 'r');
+
       process.stdout.write(
         path.parse(element.name).name
         + ' - '
@@ -20,9 +18,9 @@ async function readDir(scanPath) {
       await handler.close();
 
     } else if (element.isDirectory()) {
-      await readDir(scanPath + '/' + element.name);
+      await readDir(path.join(scanPath, element.name));
     }
   }
 }
 
-readDir(__dirname + '/secret-folder').then();
+readDir(path.join(__dirname, 'secret-folder')).then();
