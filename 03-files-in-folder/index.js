@@ -12,7 +12,7 @@ async function readDir(scanPath) {
         + ' - '
         + path.parse(element.name).ext.split('.').join('')
         + ' - '
-        + ((await handler.stat()).size / 1024).toFixed(1) + 'kb'
+        + (await handler.stat()).size + 'b'
         + EOL
       );
       await handler.close();
