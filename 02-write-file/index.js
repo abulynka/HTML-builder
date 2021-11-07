@@ -15,6 +15,8 @@ process.on('SIGINT', () => {
   exit();
 });
 
+process.stdout.write('Please, enter message (ctrl + c or "exit" - exits the program):' + EOL);
+
 readline.createInterface({input: process.stdin})
   .on('line', function(line) {
     if (line === 'exit') {
