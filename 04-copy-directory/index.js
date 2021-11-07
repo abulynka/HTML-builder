@@ -2,9 +2,6 @@ const fsPromises = require('fs/promises');
 const path = require('path');
 
 async function copyDir(from, to) {
-  from = path.normalize(from);
-  to = path.normalize(to);
-
   if (await fsPromises.access(from) === false) {
     throw new Error('File or directory ' + from + ' does not exist');
   }
@@ -18,8 +15,8 @@ async function copyDir(from, to) {
   await fsPromises.mkdir(to);
 
   for (const element of (await fsPromises.readdir(from, {withFileTypes: true}))) {
-    const pathFrom = path.normalize(from + '/' + element.name);
-    const pathTo = path.normalize(to + '/' + element.name);
+    const pathFrom = path.join(from, element.name);
+    const pathTo = path.join(to, element.name);
 
     if (element.isDirectory()) {
       await copyDir(
@@ -31,4 +28,4 @@ async function copyDir(from, to) {
   }
 }
 
-copyDir(__dirname + '/files', __dirname + '/files-copy').then();
+copyDir(path.join(__dirname, 'files'), path.join(__dirname, 'files-copy')).then();
