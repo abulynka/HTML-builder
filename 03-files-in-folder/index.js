@@ -17,8 +17,6 @@ async function readDir(scanPath) {
       );
       await handler.close();
 
-    } else if (element.isDirectory()) {
-      await readDir(path.join(scanPath, element.name));
     }
   }
 }
